@@ -20,10 +20,24 @@ async function execSpectrum() {
     })
 }
 
+async function clearPublicTmpAssets() {
+    return new Promise((resolve, reject) => {
+        const exec = require("child_process").exec
+        const cmd = `rm -f public/image.jpg`;
+        exec(cmd, (error, stdout, stderr) => {
+            if (error) {
+                reject(stderr)
+            } else {
+                resolve(stdout);
+            }
+        })
+    });
+}
+
 async function copyImageToPublic() {
     return new Promise((resolve, reject) => {
         const exec = require("child_process").exec
-        const cmd = `rm public/image.jpg | cp assets/image.jpg public`;
+        const cmd = `cp assets/image.jpg public`;
         exec(cmd, (error, stdout, stderr) => {
             if (error) {
                 reject(stderr)
@@ -43,6 +57,7 @@ app.get('/', async function (req, res) {
     };
     try {
         await execSpectrum();
+        await clearPublicTmpAssets();
         await copyImageToPublic();
     } catch(error) {
         response.error = error;
