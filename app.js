@@ -16,7 +16,7 @@ app.get('/', function (req, res) {
     };
     const exec = require("child_process").exec
     exec("ls", (error, stdout, stderr) => {
-        response.imageUrl = `req.baseUrl + /image.jpg`;
+        response.imageUrl = `${req.baseUrl} + /image.jpg`;
         response.message = stdout;
         response.error = stderr;
         res.send(JSON.stringify(response));
