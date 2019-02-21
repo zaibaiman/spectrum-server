@@ -6,25 +6,50 @@ function base64_encode(filename) {
     return fs.readFileSync(filename, 'base64');
 }
 
+async function execSpectrum() {
+    return new Promise((resolve, reject) => {
+        const exec = require("child_process").exec
+        const cmd = `docker run --rm -v $(pwd)/assets:/source -w /source --entrypoint octave zaibaiman/spectrum /source/app.m`;
+        exec(cmd, (error, stdout, stderr) => {
+            if (error) {
+                reject(stderr)
+            } else {
+                resolve(stdout);
+            }
+        })
+    })
+}
+
+async function copyImageToPublic() {
+    return new Promise((resolve, reject) => {
+        const exec = require("child_process").exec
+        const cmd = `rm public/image.jpg | cp assets/image.jpg public`;
+        exec(cmd, (error, stdout, stderr) => {
+            if (error) {
+                reject(stderr)
+            } else {
+                resolve(stdout);
+            }
+        })
+    });
+}
+
 app.use(express.static('public'));
 
-app.get('/', function (req, res) {
+app.get('/', async function (req, res) {
     const response = {
-        imageUrl: '',
-        message: null,
+        imageUrl: 'http://ec2-54-89-61-89.compute-1.amazonaws.com/image.jpg',
         error: null
     };
-    const exec = require("child_process").exec
-    exec("ls", (error, stdout, stderr) => {
-        response.imageUrl = `${req.originalUrl} + /image.jpg`;
-        response.message = stdout;
-        response.error = stderr;
-        res.send(JSON.stringify(response));
-    })
+    try {
+        await execSpectrum();
+        await copyImageToPublic();
+    } catch(error) {
+        response.error = error;
+    }
+    res.send(JSON.stringify(response));
 });
 
 app.listen(3000, function () {
     console.log('Example app listening on port 3000!');
-    var base64str = base64_encode('./assets/image.jpg');
-    console.log(base64str);
 });

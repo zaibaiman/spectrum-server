@@ -193,23 +193,23 @@ for i = 1:1,
 
            xyz_bar = [x_bar', y_bar', z_bar'];
            XYZ_meas = [Xi(i), Yi(i), Zi(i)];
-           
+
            %no optimizamos la solución
            %look_solution(lambda, L, k, x0, xyz_bar, XYZ_meas ,  Td', Lf');
-           
 
-           
+
+
            Tc2(i,:) = L./(1+exp(-k.*(lambda-x0)));
            X_Tc2(i, 1) = sum(Tc2(i,:).*Td.*Lf.*x_bar).*(lambda(2)-lambda(1));
 
            X_Tc2(i,1) = sum(Tc2(i,:).*Td.*Lf.*x_bar).*(lambda(2)-lambda(1));
            Y_Tc2(i,1) = sum(Tc2(i,:).*Td.*Lf.*y_bar).*(lambda(2)-lambda(1));
            Z_Tc2(i,1) = sum(Tc2(i,:).*Td.*Lf.*z_bar).*(lambda(2)-lambda(1));
-           
+
 end
 Tc2 = Tc';
-           
-                  
+
+
 for i = 1:N,
                   %inverso de la matrix de tranformacion M para obtener coordenadas RGB del punto de color
                   V = inv(M)*double([X_Tc2(i);Y_Tc2(i);Z_Tc2(i)]);
@@ -217,18 +217,18 @@ for i = 1:N,
                   G_Tc2(i) = double(V(2));
                   B_Tc2(i) = double(V(3));
 end
-                  
+
 %comparacion de las coordenadas RGB del punto de color y  las generadas con Lf y Tc:
 if com == 1,
     fprintf('\ncomparacion de las coordenadas RGB del punto de color y  las generadas con Lf y Tc:\n');
     [R0 R_Tc2(1);G0 G_Tc2(1);B0 B_Tc2(1)]
 end
-                  
-                  
+
+
 %-------------------------------- OUTPUT:
 
 Tc =  L./(1+exp(-k.*(lambda-x0)));
 
 figure
 plot(lambda, Tc)
-
+print -djpg image.jpg
