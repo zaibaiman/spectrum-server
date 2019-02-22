@@ -1,15 +1,45 @@
 var express = require('express');
 var app = express();
 var fs = require('fs');
+var path = require('path');
+var multer = require('multer')
 
 function base64_encode(filename) {
     return fs.readFileSync(filename, 'base64');
 }
 
+async function createDataView(xLens, yLens, xPer, yPer) {
+    return new Promise((resolve, reject) => {
+        const exec = require("child_process").exec
+        const cmd = `echo '{"xLens":${xLens}, "yLens":${yLens}, "xPer":${xPer}, "yPer":${yPer}}' > assets/view.json`;
+        exec(cmd, (error, stdout, stderr) => {
+            if (error) {
+                reject(stderr)
+            } else {
+                resolve(stdout);
+            }
+        })
+    })
+}
+
+async function compileTemplate(xLens, yLens, xPer, yPer) {
+    return new Promise((resolve, reject) => {
+        const exec = require("child_process").exec
+        const cmd = `./node_modules/mustache/bin/mustache assets/view.json assets/app.m > assets/app2.m`;
+        exec(cmd, (error, stdout, stderr) => {
+            if (error) {
+                reject(stderr)
+            } else {
+                resolve(stdout);
+            }
+        })
+    })
+}
+
 async function execSpectrum() {
     return new Promise((resolve, reject) => {
         const exec = require("child_process").exec
-        const cmd = `docker run --rm -v $(pwd)/assets:/source -w /source --entrypoint octave zaibaiman/spectrum /source/app.m`;
+        const cmd = `docker run --rm -v $(pwd)/assets:/source -w /source --entrypoint octave zaibaiman/spectrum /source/app2.m`;
         exec(cmd, (error, stdout, stderr) => {
             if (error) {
                 reject(stderr)
@@ -49,20 +79,42 @@ async function copyImageToPublic() {
 }
 
 app.use(express.static('public'));
+app.use(express.json());
+app.use(express.urlencoded());
 
-app.get('/', async function (req, res) {
+var storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'assets/');
+    },
+    filename: function (req, file, cb) {
+        cb(null, `sample.${file.originalname.split('.').pop()}`);
+    }
+})
+// var upload = multer({ dest: 'uploads/' });
+var upload = multer({ storage: storage });
+
+app.post('/', upload.single('pictureFile'), async function (req, res) {
+    console.log(req.file);
+    console.log(req.body);
     const response = {
         imageUrl: 'http://ec2-54-89-61-89.compute-1.amazonaws.com/image.jpg',
         error: null
     };
     try {
+        await createDataView(req.body['xLens'], req.body['yLens'], req.body['xPer'], req.body['yPer']);
+        await compileTemplate();
         await execSpectrum();
         await clearPublicTmpAssets();
         await copyImageToPublic();
-    } catch(error) {
+    } catch (error) {
         response.error = error;
     }
-    res.send(JSON.stringify(response));
+
+    if (response.error) {
+        res.send(JSON.stringify(response));
+    } else {
+        res.redirect('/results.html');
+    }
 });
 
 app.listen(3000, function () {

@@ -39,12 +39,12 @@ load z_bar.dat;
 
 %%---Calculo de las coordenadas RGB de puntos sobre la lente (xi, yi) y la referencia  (xp, yp)
 
-xi = round(800+400*rand(1,N));
-yi = round(200+200*(2*rand(1,N)-1));
+xi = round({{xLens}}+400*rand(1,N));
+yi = round({{yLens}}+200*(2*rand(1,N)-1));
 
 %--- seleccionamos un punto de la periferia (x1,y1): punto "blanco"
-xp = 500;
-yp = 200;
+xp = {{xPer}};
+yp = {{yPer}};
 
 
 %--- cordenadas RGB del punto (o pixel) (xi,yi) de la zona de la lente:
@@ -232,3 +232,4 @@ Tc =  L./(1+exp(-k.*(lambda-x0)));
 figure
 plot(lambda, Tc)
 print -djpg image.jpg
+
