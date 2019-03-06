@@ -8,6 +8,15 @@ function base64_encode(filename) {
     return fs.readFileSync(filename, 'base64');
 }
 
+async function saveBase64Image(base64Data) {
+    return new Promise((resolve, reject) => {
+        fs.writeFile("./assets/sample.jpg", base64Data, 'base64', function(err) {
+            if (err) reject(err);
+            else resolve();
+        });
+    })
+}
+
 async function createDataView(xLens, yLens, xPer, yPer) {
     return new Promise((resolve, reject) => {
         const exec = require("child_process").exec
@@ -93,7 +102,7 @@ var storage = multer.diskStorage({
 // var upload = multer({ dest: 'uploads/' });
 var upload = multer({ storage: storage });
 
-app.post('/', upload.single('pictureFile'), async function (req, res) {
+app.post('/', upload.single('pictureFile'), async function(req, res) {
     console.log(req.file);
     console.log(req.body);
     const response = {
@@ -115,6 +124,22 @@ app.post('/', upload.single('pictureFile'), async function (req, res) {
     } else {
         res.redirect('/results.html');
     }
+});
+
+app.post('/api/process', async function(req, res) {
+    let statusCode = 200;
+    try {
+        await saveBase64Image(req.body.image);
+        await createDataView(100, 100, 50, 50);
+        await compileTemplate();
+        await execSpectrum();
+        await clearPublicTmpAssets();
+        await copyImageToPublic();
+    } catch (error) {
+        statusCode = 500;
+    }
+
+    res.sendStatus(statusCode);
 });
 
 app.listen(3000, function () {
