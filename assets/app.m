@@ -246,6 +246,7 @@ plot(lambda, Tc*100,'b','linewidth',2)
 set(gca,'FontSize',14); %tamaño de las letras
 xlabel('wavelength (nm)')
 ylabel('Transmittance(%)')
+print -djpg image.jpg
 
 %transmitancia  aboración para longitues de onda corta (380-480nm)
 transmitancia = median(prom)
