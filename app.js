@@ -140,7 +140,7 @@ app.post('/', upload.single('pictureFile'), async function(req, res) {
     // } else {
     //     res.redirect('/results.html');
     // }
-    res.send(JSON.stringify(response));
+    res.send(response);
 });
 
 app.post('/api/process', async function(req, res) {
