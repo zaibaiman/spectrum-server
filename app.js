@@ -149,15 +149,19 @@ app.post('/', upload.single('pictureFile'), async function(req, res) {
 
 app.post('/api/process', async function(req, res) {
     try {
-        await saveBase64Image(req.body.image);
-        await createDataView(100, 100, 50, 50);
-        await compileTemplate();
-        await execSpectrum();
-        await clearPublicTmpAssets();
-        await copyImageToPublic();
-        const values = await readOutputFile();
-        res.status(200);
-        res.send(values);
+        // await saveBase64Image(req.body.image);
+        // await createDataView(100, 100, 50, 50);
+        // await compileTemplate();
+        // await execSpectrum();
+        // await clearPublicTmpAssets();
+        // await copyImageToPublic();
+        // const values = await readOutputFile();
+        // res.status(200);
+        // res.send(values);
+        res.send({
+            transmittance: '0.34',
+            absorption: '0.59'
+        });
     } catch (error) {
         res.sendStatus(500);
     }
