@@ -1,5 +1,4 @@
-%V3p6:  Usamos el método Down-Hill simplex para encontrar los parámetros optimizados (k, x0)
-%incluimos los valores de promedio de transmitancia y absorción entre 380-480nm.380
+%V3:  Usamos el método Down-Hill simplex para encontrar los parámetros optimizados (k, x0)
 %V2p5: Toma un conjunto de puntos y hace un ajuste no-lineal a los datos
 %Un conjunto de puntos sobre la zona de los lentes es seleccionada aleatoriamente: (Xi, Yi, Zi)
 %En esta version incluimos Td en los calculos
@@ -11,12 +10,12 @@
 clear % limpamos
 lambda = linspace(400, 700, 100);
 cte = 0.96e-3;
-x0o = 440;
-ko  = 0.125;
+x0o = 420;
+ko  = 0.3;
 Lo = .95;
 
 %comentarios activados 1 y desactivados 0
-com = 0;
+com = 1;
 
 %--- seleccionamos n puntos sobre el area de la lente
 N = 1;
@@ -224,33 +223,13 @@ if com == 1,
     fprintf('\ncomparacion de las coordenadas RGB del punto de color y  las generadas con Lf y Tc:\n');
     [R0 R_Tc2(1);G0 G_Tc2(1);B0 B_Tc2(1)]
 end
-rnd = 10*rand(1,1)-5;
 
-x0 = x0 +round(rnd);
-Tc =  L./(1+exp(-k.*(lambda-x0)));
-
-%calculamos los promedios
-j = 1;
-for i = 1:length(lambda)
-    if lambda( i ) >= 380 && lambda( i ) <= 480
-        prom( j ) = Tc( i );
-        j = j + 1;
-    end
-end
 
 %-------------------------------- OUTPUT:
 
 Tc =  L./(1+exp(-k.*(lambda-x0)));
 
-plot(lambda, Tc*100,'b','linewidth',2)
-set(gca,'FontSize',14); %tamaño de las letras
-xlabel('wavelength (nm)')
-ylabel('Transmittance(%)')
+figure
+plot(lambda, Tc)
+print -djpg image.jpg
 
-%transmitancia  aboración para longitues de onda corta (380-480nm)
-transmitancia = median(prom)
-absorcion     =  1 - (transmitancia + 0.04)
-
-fileID = fopen('output.txt', 'w');
-fprintf(fileID,'%f %f\n', transmitancia, absorcion);
-fclose(fileID);

@@ -87,6 +87,20 @@ async function copyImageToPublic() {
     });
 }
 
+async function readOutputFile() {
+    return new Promise((resolve, reject) => {
+        fs.readFile('./assets/output.txt', 'utf8', function(err, data) {
+            if (err) reject(err);
+            const values = data.split(' ');
+            values[1] = values[1].replace('\n', '');
+            resolve({
+                transmittance: values[0],
+                absorption: values[1]
+            });
+        });
+    });
+}
+
 app.use(express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded());
@@ -127,7 +141,6 @@ app.post('/', upload.single('pictureFile'), async function(req, res) {
 });
 
 app.post('/api/process', async function(req, res) {
-    let statusCode = 200;
     try {
         await saveBase64Image(req.body.image);
         await createDataView(100, 100, 50, 50);
@@ -135,11 +148,12 @@ app.post('/api/process', async function(req, res) {
         await execSpectrum();
         await clearPublicTmpAssets();
         await copyImageToPublic();
+        const values = await readOutputFile();
+        res.status(200);
+        res.send(JSON.stringify(values));
     } catch (error) {
-        statusCode = 500;
+        res.sendStatus(500);
     }
-
-    res.sendStatus(statusCode);
 });
 
 app.listen(3000, function () {
