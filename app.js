@@ -121,6 +121,7 @@ app.post('/', upload.single('pictureFile'), async function(req, res) {
     console.log(req.body);
     const response = {
         imageUrl: 'http://ec2-54-89-61-89.compute-1.amazonaws.com/image.jpg',
+        values: null,
         error: null
     };
     try {
@@ -129,6 +130,7 @@ app.post('/', upload.single('pictureFile'), async function(req, res) {
         await execSpectrum();
         await clearPublicTmpAssets();
         await copyImageToPublic();
+        response.values = await readOutputFile();
     } catch (error) {
         response.error = error;
     }
