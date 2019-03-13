@@ -135,11 +135,12 @@ app.post('/', upload.single('pictureFile'), async function(req, res) {
         response.error = error;
     }
 
-    if (response.error) {
-        res.send(JSON.stringify(response));
-    } else {
-        res.redirect('/results.html');
-    }
+    // if (response.error) {
+    //     res.send(JSON.stringify(response));
+    // } else {
+    //     res.redirect('/results.html');
+    // }
+    res.send(JSON.stringify(response));
 });
 
 app.post('/api/process', async function(req, res) {
