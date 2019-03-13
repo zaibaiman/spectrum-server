@@ -4,7 +4,6 @@ var fs = require('fs');
 var path = require('path');
 var multer = require('multer')
 var bodyParser = require('body-parser');
-var cors = require('cors');
 
 function base64_encode(filename) {
     return fs.readFileSync(filename, 'base64');
@@ -103,7 +102,6 @@ async function readOutputFile() {
     });
 }
 
-app.use(cors());
 app.use(express.static('public'));
 // app.use(express.json());
 // app.use(express.urlencoded());
