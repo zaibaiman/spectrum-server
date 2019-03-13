@@ -3,6 +3,7 @@ var app = express();
 var fs = require('fs');
 var path = require('path');
 var multer = require('multer')
+var bodyParser = require('body-parser');
 
 function base64_encode(filename) {
     return fs.readFileSync(filename, 'base64');
@@ -102,8 +103,10 @@ async function readOutputFile() {
 }
 
 app.use(express.static('public'));
-app.use(express.json());
-app.use(express.urlencoded());
+// app.use(express.json());
+// app.use(express.urlencoded());
+app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
